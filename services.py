@@ -58,7 +58,7 @@ def processSingleImage(eye_tracker, image_encoded_data):
     width = frame_gray.shape[1]
     return {
         "pupilIrisRatio" : float(pupilR) / float(irisR),
-        "imgRatio": height / width,
+        "imgRatio": float(height) / float(width),
         "pupil": {
             "r" : float(pupilR) / float(width),
             "x" : float(pupilX) / float(width),
