@@ -72,7 +72,7 @@ class MaximBootloader(object):
 
             self.msbl.header = header
             i = 0
-            self.msbl.pages_data = []
+            # self.msbl.pages_data = []
             self.msbl.pages_base64 = []
             tmp_page = Page()
             last_pos = self.f.tell()
@@ -80,8 +80,13 @@ class MaximBootloader(object):
             # print('last_pos: ' + str(last_pos))
             while self.f.readinto(tmp_page) == sizeof(tmp_page):
                 buf_copy = deepcopy(tmp_page.data)
-                self.msbl.pages_data.append(buf_copy)
-                self.msbl.pages_base64.append(self.get_base64_string(buf_copy))
+                # self.msbl.pages_data.append(buf_copy)
+                page_base64 = []
+                print(buf_copy)
+                for trunk_ind in range(32):
+                    page_base64.append(self.get_base64_string(bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
+                page_base64.append(self.get_base64_string(bytearray(buf_copy[8192:])))
+                self.msbl.pages_base64.append(page_base64)
                 total_size = total_size + sizeof(tmp_page)
                 # print(self.msbl.pages_data[i])
                 #print('read page ' + str(i));
