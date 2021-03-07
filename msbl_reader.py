@@ -45,11 +45,19 @@ class MaximBootloader(object):
             exit(0)
 
     def get_response_data(self):
+        ret_num_pages_bytes = bytes.fromhex(hex(self.msbl.header.numPages).lstrip("0x"))
+        ret_page_size_bytes = bytes.fromhex(hex(8192 + 16).lstrip("0x"))
+
+        numPage_prefix = bytes.fromhex("01030004")
+        pageSize_prefix = bytes.fromhex("01040004")
+        nonce_prefix = bytes.fromhex("0105000A")
+        auth_prefix = bytes.fromhex("0106000F")
         return  {
-            "nonce": self.get_base64_string(self.msbl.header.nonce),
-            "auth" : self.get_base64_string(self.msbl.header.auth),
-            "numPages": self.msbl.header.numPages,
-            "pages" : self.msbl.pages_base64
+            "nonce": self.get_base64_string(nonce_prefix + self.msbl.header.nonce),
+            "auth" : self.get_base64_string(auth_prefix + self.msbl.header.auth),
+            "numPages": self.get_base64_string(numPage_prefix + ret_num_pages_bytes),
+            "pageSize": self.get_base64_string(pageSize_prefix + ret_page_size_bytes),
+            "pages" : self.msbl.pages_base64,
         }
 
     def get_base64_string(self, data):
@@ -82,7 +90,6 @@ class MaximBootloader(object):
                 buf_copy = deepcopy(tmp_page.data)
                 # self.msbl.pages_data.append(buf_copy)
                 page_base64 = []
-                print(buf_copy)
                 for trunk_ind in range(32):
                     page_base64.append(self.get_base64_string(bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
                 page_base64.append(self.get_base64_string(bytearray(buf_copy[8192:])))
