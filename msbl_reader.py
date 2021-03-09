@@ -2,6 +2,7 @@ from __future__ import print_function
 from copy import deepcopy
 from ctypes import *
 import base64
+import struct
 
 VERSION = "0.32"
 platform_types = { 1: 'MAX32660' }
@@ -45,8 +46,8 @@ class MaximBootloader(object):
             exit(0)
 
     def get_response_data(self):
-        ret_num_pages_bytes = bytes.fromhex(hex(self.msbl.header.numPages).lstrip("0x"))
-        ret_page_size_bytes = bytes.fromhex(hex(8192 + 16).lstrip("0x"))
+        ret_num_pages_bytes = struct.pack('>h', self.msbl.header.numPages)
+        ret_page_size_bytes = struct.pack('>h', self.msbl.header.pageSize)
 
         numPage_prefix = bytes.fromhex("01030004")
         pageSize_prefix = bytes.fromhex("01040004")
@@ -61,7 +62,7 @@ class MaximBootloader(object):
         }
 
     def get_base64_string(self, data):
-        return base64.b64encode(data).decode('utf-8')
+        return base64.b64encode(data).decode('ascii')
 
     def print_as_hex(self, label, arr):
         print(label + ' : ' + ' '.join(format(i, '02x') for i in arr))
@@ -74,6 +75,7 @@ class MaximBootloader(object):
                 self.print_as_hex('nonce', header.nonce)
                 self.print_as_hex('auth', header.auth)
                 self.print_as_hex('resv1', header.resv1)
+                print('pageSize', header.pageSize)
             else:
                 print("FILE ERROR")
                 return False
@@ -90,8 +92,10 @@ class MaximBootloader(object):
                 buf_copy = deepcopy(tmp_page.data)
                 # self.msbl.pages_data.append(buf_copy)
                 page_base64 = []
-                prefix_bytes = bytes.fromhex("01030004")
                 for trunk_ind in range(32):
+                    prefix_bytes = bytes.fromhex("01070100")
+                    if trunk_ind == 0:
+                        prefix_bytes += bytes.fromhex("8004")
                     page_base64.append(self.get_base64_string(prefix_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
                 page_base64.append(self.get_base64_string(prefix_bytes + bytearray(buf_copy[8192:])))
                 self.msbl.pages_base64.append(page_base64)
