@@ -94,12 +94,12 @@ class MaximBootloader(object):
                 # self.msbl.pages_data.append(buf_copy)
                 page_base64 = []
                 for trunk_ind in range(32):
-                    prefix_bytes = bytes.fromhex("01070104")
+                    prefix_bytes = bytes.fromhex("01070102")
                     offset_bytes = struct.pack('>h', 2 + trunk_ind * 256)
                     page_base64.append(self.get_base64_string(prefix_bytes 
                     + offset_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
                 offset_bytes = struct.pack('>h', 2 + 32 * 256)
-                self.msbl.cmds_base64.append(self.get_base64_string(bytes.fromhex("01080014") 
+                self.msbl.cmds_base64.append(self.get_base64_string(bytes.fromhex("01080012") 
                 + offset_bytes + bytearray(buf_copy[8192:])))
                 self.msbl.pages_base64.append(page_base64)
                 total_size = total_size + sizeof(tmp_page)
