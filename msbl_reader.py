@@ -59,6 +59,7 @@ class MaximBootloader(object):
             "numPages": self.get_base64_string(numPage_prefix + ret_num_pages_bytes),
             "pageSize": self.get_base64_string(pageSize_prefix + ret_page_size_bytes),
             "pages" : self.msbl.pages_base64,
+            "cmds": self.msbl.cmds_base64,
         }
 
     def get_base64_string(self, data):
@@ -82,7 +83,7 @@ class MaximBootloader(object):
 
             self.msbl.header = header
             i = 0
-            # self.msbl.pages_data = []
+            self.msbl.cmds_base64 = []
             self.msbl.pages_base64 = []
             tmp_page = Page()
             last_pos = self.f.tell()
@@ -95,7 +96,7 @@ class MaximBootloader(object):
                 for trunk_ind in range(32):
                     prefix_bytes = bytes.fromhex("01070100")
                     page_base64.append(self.get_base64_string(prefix_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
-                page_base64.append(self.get_base64_string(bytes.fromhex("01070100") + bytearray(buf_copy[8192:])))
+                self.msbl.cmds_base64.append(self.get_base64_string(bytes.fromhex("01080010") + bytearray(buf_copy[8192:])))
                 self.msbl.pages_base64.append(page_base64)
                 total_size = total_size + sizeof(tmp_page)
                 # print(self.msbl.pages_data[i])
