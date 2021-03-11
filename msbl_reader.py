@@ -51,7 +51,7 @@ class MaximBootloader(object):
 
         numPage_prefix = bytes.fromhex("01030004")
         pageSize_prefix = bytes.fromhex("01040004")
-        nonce_prefix = bytes.fromhex("0105000A")
+        nonce_prefix = bytes.fromhex("0105000B")
         auth_prefix = bytes.fromhex("0106000F")
         return  {
             "nonce": self.get_base64_string(nonce_prefix + self.msbl.header.nonce),
@@ -95,8 +95,12 @@ class MaximBootloader(object):
                 page_base64 = []
                 for trunk_ind in range(32):
                     prefix_bytes = bytes.fromhex("01070100")
-                    page_base64.append(self.get_base64_string(prefix_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
-                self.msbl.cmds_base64.append(self.get_base64_string(bytes.fromhex("01080010") + bytearray(buf_copy[8192:])))
+                    offset_bytes = struct.pack('>h', 2 + trunk_ind * 256)
+                    page_base64.append(self.get_base64_string(prefix_bytes 
+                    + offset_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
+                offset_bytes = struct.pack('>h', 2 + 32 * 256)
+                self.msbl.cmds_base64.append(self.get_base64_string(bytes.fromhex("01080010") 
+                + offset_bytes + bytearray(buf_copy[8192:])))
                 self.msbl.pages_base64.append(page_base64)
                 total_size = total_size + sizeof(tmp_page)
                 # print(self.msbl.pages_data[i])
