@@ -94,8 +94,6 @@ class MaximBootloader(object):
                 page_base64 = []
                 for trunk_ind in range(32):
                     prefix_bytes = bytes.fromhex("01070100")
-                    if trunk_ind == 0:
-                        prefix_bytes += bytes.fromhex("8004")
                     page_base64.append(self.get_base64_string(prefix_bytes + bytearray(buf_copy[trunk_ind * 256: (trunk_ind + 1) * 256])))
                 page_base64.append(self.get_base64_string(bytes.fromhex("01070100") + bytearray(buf_copy[8192:])))
                 self.msbl.pages_base64.append(page_base64)
