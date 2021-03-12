@@ -96,7 +96,7 @@ class MaximBootloader(object):
                 TRUNK_SIZE = 64
                 TRUNK_CNT = 128
                 for trunk_ind in range(TRUNK_CNT):
-                    prefix_bytes = bytes.fromhex("01070102")
+                    prefix_bytes = bytes.fromhex("01070042")
                     offset_bytes = struct.pack('>h', 2 + trunk_ind * TRUNK_SIZE)
                     page_base64.append(self.get_base64_string(prefix_bytes 
                     + offset_bytes + bytearray(buf_copy[trunk_ind * TRUNK_SIZE: (trunk_ind + 1) * TRUNK_SIZE])))
